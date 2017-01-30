@@ -24,26 +24,26 @@ void
 print_usage()
 {
   printf("usage:\n");
-  printf("rostopic_list [-h]\n");
+  printf("rosnode_list [-h]\n");
   printf("arguments:\n");
   printf("-h: prints this help message\n");
-  printf("-t: spin time to collect topics\n");
+  printf("-t: spin time to collect nodes\n");
   printf("-v: verbose output prints\n");
 }
 
-void print(auto & topic_map)
+void print(auto & node_names)
 {
-  for (auto & map_entry : topic_map) {
-    printf("%s\n", map_entry.first.c_str());
+  for (auto & name : node_names) {
+    printf("%s\n", name.c_str());
   }
 }
 
-void print_verbose(auto & topic_map)
+void print_verbose(auto & node_names)
 {
-  for (auto & map_entry : topic_map) {
-    printf("Name: %s Type: %s\n", map_entry.first.c_str(), map_entry.second.c_str());
+  for (auto & name : node_names) {
+    printf("Name: %s\n", name.c_str());
   }
-  printf("Number of currently available topics: %zu\n", topic_map.size());
+  printf("Number of currently available nodes: %zu\n", node_names.size());
 }
 
 int main(int argc, char ** argv)
@@ -65,7 +65,7 @@ int main(int argc, char ** argv)
 
   rclcpp::init(argc, argv);
 
-  auto node_handle = std::make_shared<rclcpp::node::Node>("rostopic_list");
+  auto node_handle = std::make_shared<rclcpp::node::Node>("rosnode_list");
   rclcpp::executors::SingleThreadedExecutor exe;
 
   auto t = node_handle->create_wall_timer(std::chrono::milliseconds(timeout), [&exe]() {
@@ -74,11 +74,11 @@ int main(int argc, char ** argv)
   exe.add_node(node_handle);
   exe.spin();
 
-  auto topic_map = node_handle->get_topic_names_and_types();
+  auto node_names = node_handle->get_node_graph_interface()->get_node_names();
   if (verbose) {
-    print_verbose(topic_map);
+    print_verbose(node_names);
   } else {
-    print(topic_map);
+    print(node_names);
   }
 
   return 0;

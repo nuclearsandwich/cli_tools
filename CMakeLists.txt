@@ -13,8 +13,17 @@ find_package(rclcpp REQUIRED)
 add_executable(rostopic_list src/rostopic_list.cpp)
 ament_target_dependencies(rostopic_list rclcpp)
 
+add_executable(rosnode_list src/rosnode_list.cpp)
+ament_target_dependencies(rosnode_list rclcpp)
+
 install(TARGETS
   rostopic_list
+  rosnode_list
   DESTINATION bin)
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_package()
