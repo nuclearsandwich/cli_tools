@@ -31,14 +31,14 @@ print_usage()
   printf("-v: verbose output prints\n");
 }
 
-void print(auto & node_names)
+void print(std::vector<std::string> & node_names)
 {
   for (auto & name : node_names) {
     printf("%s\n", name.c_str());
   }
 }
 
-void print_verbose(auto & node_names)
+void print_verbose(std::vector<std::string> & node_names)
 {
   for (auto & name : node_names) {
     printf("Name: %s\n", name.c_str());
