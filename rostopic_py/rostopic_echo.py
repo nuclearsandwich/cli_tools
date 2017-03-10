@@ -13,16 +13,80 @@
 # limitations under the License.
 
 import argparse
+import collections
 import importlib
+import sys
 
 import rclpy
+import yaml
+
+
+# Custom representer for getting clean YAML output that preserves the order in
+# an OrderedDict.
+# Inspired by:
+# http://stackoverflow.com/a/16782282/7169408
+def represent_ordereddict(dumper, data):
+    l = []
+    for k, v in data.items():
+        key = dumper.represent_data(k)
+        value = dumper.represent_data(v)
+        l.append((key, value))
+    return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', l)
+
+
+def register_yaml_representer():
+    # Register our custom representer for YAML output
+    yaml.add_representer(collections.OrderedDict, represent_ordereddict)
+
+
+# Convert a msg to an OrderedDict. We do this instead of implementing a generic
+# __dict__() method in the msg because we want to preserve order of fields from
+# the .msg file(s).
+def msg_to_ordereddict(msg):
+    d = collections.OrderedDict()
+    # We rely on __slots__ retaining the order of the fields in the .msg file.
+    for s in msg.__slots__:
+        v = getattr(msg, s, None)
+        if True in [isinstance(v, t) for t in
+                    [bool, bytes, dict, float, int, list, str, tuple, collections.OrderedDict]]:
+            d[s[1:]] = v
+        else:
+            d[s[1:]] = msg_to_ordereddict(v)
+    return d
+
+
+def msg_to_yaml(msg):
+    return yaml.dump(msg_to_ordereddict(msg), width=sys.maxsize)
+
+
+def msg_to_csv(msg):
+    def recurse(val):
+        r = ''
+        if True in [isinstance(val, t) for t in [list, tuple]]:
+            for v in val:
+                r += recurse(v)
+        elif True in [isinstance(val, t) for t in [bool, bytes, float, int, str]]:
+            r = str(val) + ','
+        else:
+            r = msg_to_csv(val) + ','
+        return r
+    result = ''
+    # We rely on __slots__ retaining the order of the fields in the .msg file.
+    for s in msg.__slots__:
+        v = getattr(msg, s, None)
+        result += recurse(v)
+    return result[:-1]
 
 
 def subscriber_cb(msg):
-    print('received: %r\n' % msg)
+    print(msg_to_yaml(msg))
 
 
-def subscriber(message_type, topic_name):
+def subscriber_cb_plot(msg):
+    print(msg_to_csv(msg))
+
+
+def subscriber(message_type, topic_name, plot):
     separator_idx = message_type.find('/')
     message_package = message_type[:separator_idx]
     message_name = message_type[separator_idx + 1:]
@@ -33,10 +97,13 @@ def subscriber(message_type, topic_name):
 
     node = rclpy.create_node('subscriber_%s_%s' % (message_package, message_name))
 
-    node.create_subscription(
-        msg_mod, topic_name, subscriber_cb)
+    if plot:
+        node.create_subscription(
+            msg_mod, topic_name, subscriber_cb_plot)
+    else:
+        node.create_subscription(
+            msg_mod, topic_name, subscriber_cb)
 
-    print('subscriber: beginning loop')
     while rclpy.ok():
         rclpy.spin_once(node)
     rclpy.shutdown()
@@ -44,12 +111,15 @@ def subscriber(message_type, topic_name):
 
 def main():
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-p', '--plot', action='store_true',
+                        help='produce comma-separated output (e.g., for plotting)')
     parser.add_argument('message_type',
                         help='type of the ROS message: e.g. "std_msgs/String"')
     parser.add_argument('topic_name',
                         help='name of the ROS topic to listen to: e.g. "chatter"')
     args = parser.parse_args()
+    register_yaml_representer()
     try:
-        subscriber(args.message_type, args.topic_name)
+        subscriber(args.message_type, args.topic_name, args.plot)
     except KeyboardInterrupt:
-        print('subscriber stopped cleanly')
+        pass
