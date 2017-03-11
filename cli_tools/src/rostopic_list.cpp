@@ -33,14 +33,14 @@ print_usage()
   printf("-v: verbose output prints\n");
 }
 
-void print(std::map<std::string, std::string> & topic_map)
+void print(const std::map<std::string, std::string> & topic_map)
 {
   for (auto & map_entry : topic_map) {
     printf("%s\n", map_entry.first.c_str());
   }
 }
 
-void print_verbose(std::map<std::string, std::string> & topic_map)
+void print_verbose(const std::map<std::string, std::string> & topic_map)
 {
   for (auto & map_entry : topic_map) {
     printf("Name: %s Type: %s\n", map_entry.first.c_str(), map_entry.second.c_str());
