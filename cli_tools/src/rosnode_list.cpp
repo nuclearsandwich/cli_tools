@@ -17,9 +17,8 @@
 #include <string>
 #include <vector>
 
+#include "c_utilities/cmdline_parser.h"
 #include "rclcpp/rclcpp.hpp"
-
-#include "cmdline_parser.h"  // NOLINT
 
 using namespace std::chrono_literals;
 

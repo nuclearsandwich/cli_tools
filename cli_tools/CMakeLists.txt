@@ -8,13 +8,14 @@ if(NOT WIN32)
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(c_utilities REQUIRED)
 find_package(rclcpp REQUIRED)
 
 add_executable(rostopic_list src/rostopic_list.cpp)
-ament_target_dependencies(rostopic_list rclcpp)
+ament_target_dependencies(rostopic_list c_utilities rclcpp)
 
 add_executable(rosnode_list src/rosnode_list.cpp)
-ament_target_dependencies(rosnode_list rclcpp)
+ament_target_dependencies(rosnode_list c_utilities rclcpp)
 
 install(TARGETS
   rostopic_list
