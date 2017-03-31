@@ -1,11 +1,15 @@
 from setuptools import setup
 
 setup(
-    name='rostopic_py',
+    name='cli_tools_py',
     version='0.0.0',
     packages=[],
     py_modules=[
-        'rostopic_echo', 'rostopic_pub'],
+        'rosnode_list',
+        'rostopic_echo',
+        'rostopic_list',
+        'rostopic_pub',
+    ],
     install_requires=['setuptools'],
     maintainer='Mikael Arguedas',
     maintainer_email='mikael@osrfoundation.org',
@@ -21,7 +25,9 @@ setup(
     test_suite='test',
     entry_points={
         'console_scripts': [
+            'rosnode_list_py = rosnode_list:main',
             'rostopic_echo_py = rostopic_echo:main',
+            'rostopic_list_py = rostopic_list:main',
             'rostopic_pub_py = rostopic_pub:main',
         ],
     },

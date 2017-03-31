@@ -93,7 +93,7 @@ def subscriber(message_type, topic_name, plot):
     module = importlib.import_module(message_package + '.msg')
     msg_mod = getattr(module, message_name)
 
-    rclpy.init([])
+    rclpy.init()
 
     node = rclpy.create_node('subscriber_%s_%s' % (message_package, message_name))
 

@@ -28,7 +28,7 @@ def publisher(message_type, topic_name, values):
     msg_mod = getattr(module, message_name)
     values_dictionary = json.loads(values)
 
-    rclpy.init([])
+    rclpy.init()
 
     node = rclpy.create_node('publisher_%s_%s' % (message_package, message_name))
 
