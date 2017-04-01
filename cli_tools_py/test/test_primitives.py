@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from rostopic_echo import msg_to_csv, msg_to_yaml, register_yaml_representer
-from test_communication import message_fixtures
+from test_msgs import message_fixtures
 
 
 def test_primitives():
