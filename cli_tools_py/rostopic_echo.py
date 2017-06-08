@@ -18,6 +18,7 @@ import importlib
 import sys
 
 import rclpy
+from rclpy.qos import qos_profile_sensor_data
 import yaml
 
 
@@ -99,10 +100,10 @@ def subscriber(message_type, topic_name, plot):
 
     if plot:
         node.create_subscription(
-            msg_mod, topic_name, subscriber_cb_plot)
+            msg_mod, topic_name, subscriber_cb_plot, qos_profile=qos_profile_sensor_data)
     else:
         node.create_subscription(
-            msg_mod, topic_name, subscriber_cb)
+            msg_mod, topic_name, subscriber_cb, qos_profile=qos_profile_sensor_data)
 
     while rclpy.ok():
         rclpy.spin_once(node)
